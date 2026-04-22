@@ -31,6 +31,7 @@ This repository is useful if you are facing problems such as:
 - [Traditional Chinese / 繁體中文](docs/README.zh-TW.md)
 - [Simplified Chinese / 简体中文](docs/README.zh-CN.md)
 - [English](docs/README.en.md)
+- [FAQ](docs/faq.md)
 - [Compatibility Matrix](docs/compatibility.md)
 
 ---
