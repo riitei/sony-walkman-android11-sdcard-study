@@ -54,6 +54,21 @@ These phrases describe the actual user-facing symptoms that this repository trie
 
 ---
 
+## Project Structure
+
+- `README.md` — repository entry point and high-level overview
+- `docs/README.zh-TW.md` — full Traditional Chinese article
+- `docs/README.zh-CN.md` — full Simplified Chinese article
+- `docs/README.en.md` — full English article
+- `docs/faq.md` — English FAQ
+- `docs/faq.zh-TW.md` — Traditional Chinese FAQ
+- `docs/faq.zh-CN.md` — Simplified Chinese FAQ
+- `docs/compatibility.md` — compatibility matrix for devices and apps
+- `CONTRIBUTING.md` — contribution guide and reporting standards
+- `.github/ISSUE_TEMPLATE/` — structured report templates for storage-behavior issues
+
+---
+
 ## Key Findings
 
 - Apps can be moved.
@@ -122,6 +137,27 @@ The Sony Walkman case is used to build a repeatable method for answering questio
 - What only looked moved in UI?
 - What still writes to shared internal storage?
 - Which behaviors are device-specific, and which may be broader Android 11+ DAP behaviors?
+
+---
+
+## Contributing
+
+If you want to contribute a verified report, please read:
+
+- [CONTRIBUTING.md](CONTRIBUTING.md)
+- [Compatibility Matrix](docs/compatibility.md)
+
+The repository includes a structured issue template for reporting:
+
+- device model
+- Android version
+- firmware / region
+- app name and version
+- whether UI app migration is available
+- whether offline data follows
+- whether ADB verification was used
+
+This keeps reports reproducible and comparable.
 
 ---
 
