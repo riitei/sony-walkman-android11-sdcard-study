@@ -1,5 +1,9 @@
 # Android 11+ DAP SD 卡存储行为研究：以 Sony Walkman 为例
 
+[返回主 README](../README.md) · [繁體中文](README.zh-TW.md) · [English](README.en.md) · [相容性矩阵](compatibility.md)
+
+---
+
 ## 前言
 
 这篇文章不是单纯记录“QQ 音乐怎么搬到 SD 卡”，而是要回答一个更底层的问题：
