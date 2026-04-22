@@ -26,6 +26,22 @@ This repository is useful if you are facing problems such as:
 
 ---
 
+## Common Search Problems
+
+This repository is also written around search-oriented problem statements such as:
+
+- **Android 11 SD card recognized but app still uses internal storage**
+- **App moved but data did not follow**
+- **QQ Music SD card Android 11 DAP**
+- **Sony Walkman SD card app migration**
+- **Windows MTP only shows 103GB**
+- **`/storage/emulated/0` vs `/mnt/expand/<UUID>`**
+- **Android 11 offline music still stored in internal storage**
+
+These phrases describe the actual user-facing symptoms that this repository tries to explain.
+
+---
+
 ## Documentation
 
 - [Traditional Chinese / 繁體中文](docs/README.zh-TW.md)
