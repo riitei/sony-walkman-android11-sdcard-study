@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Documentation entry point
+    url: https://github.com/riitei/sony-walkman-android11-sdcard-study#readme
+    about: Read the repository overview before submitting a report.
+  - name: Compatibility matrix
+    url: https://github.com/riitei/sony-walkman-android11-sdcard-study/blob/main/docs/compatibility.md
+    about: Check current verified and community-reported compatibility information.
