@@ -1,0 +1,138 @@
+name: DAP storage behavior report
+description: Report Android 11+ DAP SD card behavior for an app or device
+title: "[Report] <device> / <app> / Android <version>"
+labels:
+  - compatibility-report
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for contributing a compatibility report.
+
+        Please fill in the details below so the result can be compared across devices and apps.
+
+  - type: input
+    id: device_model
+    attributes:
+      label: Device model
+      description: Example: Sony Walkman NW-A306, NW-ZX707, iBasso DX320
+      placeholder: Sony Walkman NW-A306
+    validations:
+      required: true
+
+  - type: input
+    id: android_version
+    attributes:
+      label: Android version
+      description: Example: Android 11, Android 12, Android 13
+      placeholder: Android 11
+    validations:
+      required: true
+
+  - type: input
+    id: firmware_region
+    attributes:
+      label: Firmware / region
+      description: Example: China ROM, Global ROM, International version
+      placeholder: Global ROM
+    validations:
+      required: false
+
+  - type: input
+    id: app_name
+    attributes:
+      label: App name
+      description: Example: QQ Music, Spotify, Apple Music, NetEase Cloud Music
+      placeholder: QQ Music
+    validations:
+      required: true
+
+  - type: input
+    id: app_version
+    attributes:
+      label: App version
+      description: Optional but helpful for comparison
+      placeholder: 13.5.0
+    validations:
+      required: false
+
+  - type: dropdown
+    id: ui_move_available
+    attributes:
+      label: Is UI app migration available?
+      description: Can you manually move the app in system UI?
+      options:
+        - Yes
+        - No
+        - Not sure
+    validations:
+      required: true
+
+  - type: dropdown
+    id: offline_data_follows
+    attributes:
+      label: Did offline data follow the app migration?
+      description: Example: songs, downloads, cache
+      options:
+        - Yes
+        - No
+        - Partial / mixed
+        - Not tested
+    validations:
+      required: true
+
+  - type: dropdown
+    id: adb_used
+    attributes:
+      label: Was ADB verification used?
+      description: Did you verify with commands such as pm path, dumpsys package, or df -h?
+      options:
+        - Yes
+        - No
+    validations:
+      required: true
+
+  - type: textarea
+    id: adb_commands
+    attributes:
+      label: ADB commands and observations
+      description: Paste the commands you used and summarize the result
+      placeholder: |
+        adb shell pm path <package>
+        adb shell dumpsys package <package> | findstr volumeUuid
+        adb shell df -h /storage/emulated
+        adb shell df -h /mnt/expand/<UUID>
+    validations:
+      required: false
+
+  - type: textarea
+    id: reproduction_steps
+    attributes:
+      label: Reproduction steps
+      description: Describe the order you used so others can reproduce it
+      placeholder: |
+        1. Enable USB debugging
+        2. Install app
+        3. Launch once and close it
+        4. Move app in Settings → Storage → Apps → Storage location
+        5. Verify with ADB
+    validations:
+      required: true
+
+  - type: textarea
+    id: result_summary
+    attributes:
+      label: Result summary
+      description: Briefly describe what actually moved and what did not
+      placeholder: App package moved, but offline song data remained in shared internal storage.
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional_notes
+    attributes:
+      label: Additional notes
+      description: Add screenshots, MTP observations, region-specific behavior, or anything else useful
+      placeholder: Windows MTP still showed only about 103GB.
+    validations:
+      required: false
