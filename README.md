@@ -47,6 +47,7 @@ These phrases describe the actual user-facing symptoms that this repository trie
 - [Traditional Chinese / 繁體中文](docs/README.zh-TW.md)
 - [Simplified Chinese / 简体中文](docs/README.zh-CN.md)
 - [English](docs/README.en.md)
+- [Methodology](docs/methodology.md)
 - [FAQ (English)](docs/faq.md)
 - [FAQ (繁體中文)](docs/faq.zh-TW.md)
 - [FAQ (简体中文)](docs/faq.zh-CN.md)
@@ -60,6 +61,7 @@ These phrases describe the actual user-facing symptoms that this repository trie
 - `docs/README.zh-TW.md` — full Traditional Chinese article
 - `docs/README.zh-CN.md` — full Simplified Chinese article
 - `docs/README.en.md` — full English article
+- `docs/methodology.md` — verification method and layer-separation logic
 - `docs/faq.md` — English FAQ
 - `docs/faq.zh-TW.md` — Traditional Chinese FAQ
 - `docs/faq.zh-CN.md` — Simplified Chinese FAQ
@@ -146,6 +148,7 @@ If you want to contribute a verified report, please read:
 
 - [CONTRIBUTING.md](CONTRIBUTING.md)
 - [Compatibility Matrix](docs/compatibility.md)
+- [Methodology](docs/methodology.md)
 
 The repository includes a structured issue template for reporting:
 
