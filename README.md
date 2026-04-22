@@ -1,27 +1,36 @@
-# Sony Walkman Android 11 SD Card Study
+# Android 11+ DAP SD Card Storage Study
 
-Research notes and experiments on Sony Walkman Android 11 storage behavior, adoptable storage, and QQ Music offline data handling.
+Research on Android 11+ digital audio players (DAP) storage behavior, including Sony Walkman, app migration, and offline data handling.
+
+Android 11+ 隨身聽（DAP）SD 卡儲存行為研究，包含 Sony Walkman、App 搬移與離線資料驗證。
 
 ---
 
 ## 📖 Documentation
 
-- [繁體中文版](docs/README.zh-TW.md)
-- [English Version](docs/README.en.md)
+- 🇹🇼 [繁體中文](docs/README.zh-TW.md)
+- 🇨🇳 [简体中文](docs/README.zh-CN.md)
+- 🇺🇸 [English](docs/README.en.md)
 
 ---
 
 ## 🎯 Key Finding
 
-- App 可以搬到 1TB SD（adopted storage）
-- 但離線音樂資料不一定會跟著搬
-- 最終解法：**系統層分離，使用層解決**
+- App can be moved
+- Data may NOT follow
+- System layer ≠ App data layer
 
 ---
 
-## ⚠️ Scope
+## 📊 Compatibility
 
-- Sony Walkman
-- Android 11
+See: [App Compatibility Matrix](docs/compatibility.md)
+
+---
+
+## Scope
+
+- Android 11+
+- Sony / iBasso / HiBy / FiiO
 - Non-root
 - ADB required
