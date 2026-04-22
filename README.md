@@ -1,6 +1,6 @@
 # Android 11+ DAP SD Card Storage Study
 
-Research on Android 11+ digital audio players (DAP) storage behavior, with Sony Walkman used as the primary verified case.
+Research on Android 11+ digital audio players (DAP) storage behavior, with **Sony Walkman + Android 11 + QQ Music** used as the primary verified case.
 
 This repository focuses on a practical question:
 
@@ -11,6 +11,18 @@ The answer is more nuanced than it first appears:
 - an app package may be movable,
 - but its offline data may still remain in shared internal storage,
 - and UI-reported capacity does not always match actual app data behavior.
+
+---
+
+## Who This Repository Is For
+
+This repository is useful if you are facing problems such as:
+
+- the SD card is recognized, but the app still consumes internal storage,
+- the app can be moved, but offline songs or cached media do not follow,
+- Windows / MTP still shows only the internal shared storage,
+- `/storage/emulated/0` and `/mnt/expand/<UUID>` appear to behave differently,
+- you want a **non-root**, reproducible workflow to verify what really moved and what did not.
 
 ---
 
@@ -28,6 +40,7 @@ The answer is more nuanced than it first appears:
 - Apps can be moved.
 - App data may **not** follow.
 - System storage layer is **not** the same as app data layer.
+- UI success does **not** automatically mean offline-data success.
 - The validated workflow is **UI-based app migration + ADB verification**, not root.
 
 ---
@@ -57,6 +70,12 @@ The repository currently emphasizes the following workflow:
 4. Use system UI to manually move the app
 5. Verify package location and offline data behavior with ADB
 
+This is intended to separate three different layers clearly:
+
+- what the **system** sees,
+- what the **UI** allows,
+- what the **app data layer** actually does.
+
 ---
 
 ## Case Summary: QQ Music on Sony Walkman
@@ -70,6 +89,20 @@ This leads to the practical strategy used in this repo:
 
 - internal storage as the **system/app disk**,
 - SD card as the **music library disk**.
+
+---
+
+## Research Position
+
+This repository is not written as a generic “how to move one app” note.
+It is written as a storage-behavior study for Android 11+ DAP devices.
+
+The Sony Walkman case is used to build a repeatable method for answering questions such as:
+
+- What actually moved?
+- What only looked moved in UI?
+- What still writes to shared internal storage?
+- Which behaviors are device-specific, and which may be broader Android 11+ DAP behaviors?
 
 ---
 
