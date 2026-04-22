@@ -16,7 +16,7 @@ Devices such as Sony Walkman, iBasso, HiBy, and FiiO may all face the same class
 - an app package may be movable, but offline songs may still remain in shared internal storage;
 - UI-reported capacity may increase, but that does not mean the main shared-storage layer has truly been integrated.
 
-So although this document uses **Sony Walkman + Android 11 + QQ Music** as the verified case, the real subject is broader:
+Therefore, although this document uses **Sony Walkman + Android 11 + QQ Music** as the verified case, the real subject is broader:
 
 > **storage-layer separation on Android 11+ DAP devices**.
 
