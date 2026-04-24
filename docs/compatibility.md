@@ -15,21 +15,20 @@ This file tracks verified and community-reported storage behavior on Android 11+
 
 ---
 
-## What This Matrix Tries to Separate
+## What This Matrix Separates
 
-This matrix does **not** treat storage behavior as a single yes/no question.
-It tries to separate several different layers:
+Storage behavior is not a single yes/no result. A device can show the SD card, the Settings UI can allow an app move, and the app's offline data can still stay under shared internal storage.
 
-1. **UI app migration available**
-2. **App package actually moved**
-3. **Offline data actually followed**
-4. **ADB verification used or not**
-5. **Windows / MTP behavior**
-6. **Firmware / region differences**
+This matrix separates:
 
-This matters because:
+- UI app migration availability
+- actual package location
+- offline-data behavior
+- whether ADB verification was used
+- Windows / MTP behavior
+- firmware or region differences
 
-> An app can appear movable in UI, while its offline data still remains in shared internal storage.
+The main point is simple: an app can look movable in the UI while its offline data still does not move.
 
 ---
 
@@ -58,50 +57,33 @@ This matters because:
 
 ---
 
-## Interpretation Notes
+## How to Read the Matrix
 
-### 1. UI app migration available
-This only means the system UI exposes an app-migration entry.
-It does **not** guarantee offline-data migration.
+**UI app migration available** only means the Settings UI exposes an app-migration entry. It does not prove that offline music data moved.
 
-### 2. Package moved
-This should ideally be confirmed with ADB, for example:
+**Package moved** should ideally be checked with ADB:
 
 ```bash
 adb shell pm path <package>
 adb shell dumpsys package <package> | findstr volumeUuid
 ```
 
-### 3. Offline data follows
-This should ideally be checked using storage comparison, for example:
+**Offline data follows** should be checked by comparing storage usage before and after downloading offline songs:
 
 ```bash
 adb shell df -h /storage/emulated
 adb shell df -h /mnt/expand/<UUID>
 ```
 
-### 4. Windows / MTP behavior
-This is useful because many users incorrectly assume that what Windows shows is the full storage truth.
-In practice, MTP often still reflects mainly the shared-storage layer.
+**Windows / MTP behavior** is useful, but incomplete. Many users first notice the problem because Windows still shows only the shared-storage side. That observation should be recorded, but it should not replace Android-side verification.
 
 ---
 
 ## Reporting Suggestion
 
-If you want to contribute a result, report at least:
+A useful report should include the device model, Android version, firmware / region, app name and version, whether UI migration is available, whether the package actually moved, whether offline data followed, whether ADB verification was used, what Windows / MTP showed, and a short result summary.
 
-1. device model,
-2. Android version,
-3. firmware / region,
-4. app name and version,
-5. whether UI app migration is available,
-6. whether the package actually moved,
-7. whether offline data followed,
-8. whether ADB verification was used,
-9. what Windows / MTP showed,
-10. a short factual result summary.
-
-For structured reports, please use the repository's issue template and contribution guide:
+For structured reports, use:
 
 - [CONTRIBUTING.md](../CONTRIBUTING.md)
 - [Issue templates](../.github/ISSUE_TEMPLATE)
