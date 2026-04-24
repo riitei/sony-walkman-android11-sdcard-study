@@ -1,136 +1,101 @@
 # Methodology
 
-This document explains the method used in this repository to analyze **Android 11+ DAP SD card storage behavior**.
+This document describes how this repository checks **Android 11+ DAP SD card storage behavior**.
 
 [Back to main README](../README.md) · [Traditional Chinese article](README.zh-TW.md) · [Simplified Chinese article](README.zh-CN.md) · [English article](README.en.md) · [Compatibility Matrix](compatibility.md)
 
 ---
 
-## Why a Separate Methodology Document Exists
+## Why This Method Is Needed
 
-Most storage discussions fail because they mix several different questions together:
+The storage problem is easy to misread. A device may detect the SD card, the Settings UI may allow an app move, and Windows may still show only the shared internal storage view. Those observations can all be true at the same time.
 
-- Did the system detect the SD card?
-- Did the UI allow the app to move?
-- Did the app package really move?
-- Did offline songs actually follow?
-- Did Windows / MTP reflect the real storage layout?
-
-If these are not separated, the result is usually a false conclusion.
-
-This repository therefore treats the problem as a **verification problem**, not just a settings problem.
+For this Walkman test, I treated the result as a verification problem: first change one thing, then check which layer actually changed. This avoids turning a UI result into a storage conclusion too quickly.
 
 ---
 
-## Core Principle
+## Core Rule
 
-The method used here is based on one rule:
+Do not treat these as the same thing:
 
-> **Do not treat system visibility, UI behavior, package location, offline-data location, and Windows / MTP view as the same thing.**
+- SD card detection
+- Settings UI behavior
+- app package location
+- offline-song / cache location
+- Windows / MTP view
 
-They may overlap, but they are not guaranteed to be identical.
+They may point in the same direction, but Android 11 does not guarantee that they are identical.
 
 ---
 
-## The Five Layers This Repository Separates
+## Layers Checked in This Repository
 
-### 1. Device-detection layer
-Question:
+### 1. Device detection
 
-- Can Android see the external SD card at all?
-
-Typical checks:
+This checks whether Android can see the external SD card at all.
 
 ```bash
 adb shell sm list-disks
 adb shell df -h
 ```
 
-### 2. UI migration layer
-Question:
+### 2. UI migration
 
-- Does the system UI expose an app-migration entry?
-
-Typical path:
+This checks whether the device exposes an app-migration entry in Settings.
 
 ```text
 Settings → Storage → Apps → Storage location
 ```
 
-### 3. Package-location layer
-Question:
+### 3. Package location
 
-- Did the app package really move to the external-side volume?
-
-Typical checks:
+This checks whether the app package actually moved to the external-side volume.
 
 ```bash
 adb shell pm path <package>
 adb shell dumpsys package <package> | findstr volumeUuid
 ```
 
-### 4. Offline-data layer
-Question:
+### 4. Offline data
 
-- Did offline songs, cache, or downloads actually follow?
-
-Typical checks:
+This checks whether offline songs, downloads, or cache data followed the package move.
 
 ```bash
 adb shell df -h /storage/emulated
 adb shell df -h /mnt/expand/<UUID>
 ```
 
-### 5. Host-visibility layer
-Question:
+### 5. Host visibility
 
-- What does Windows / MTP actually show?
-
-Typical observation:
-
-- Windows may still show only the shared-storage side, even when the device internally uses an expanded volume.
+This checks what Windows / MTP shows after the device is connected to a PC. In this case, Windows may still show mainly the shared-storage side even when Android has a lower-level expanded volume.
 
 ---
 
-## Why the Workflow Uses "Install → Launch Once → Close → Move → Verify"
+## Test Order
 
-This order is intentional.
+The working order used here is:
 
-### Step 1: Install the app
-Without installation, there is no package state to inspect.
+```text
+Install → Launch once → Close → Move through UI → Verify with ADB
+```
 
-### Step 2: Launch the app once
-Without one real launch, the app may not finish initialization.
-That means later package or data observations may be incomplete.
+I use this order because each step leaves a clearer state for the next check. The app needs to be installed before there is any package state to inspect. It should be launched once so it can finish basic initialization. Closing it reduces noise before the storage comparison. The UI move is the ordinary non-root migration step. ADB is then used to check what actually changed.
 
-### Step 3: Close the app
-This reduces noise during later storage checks and keeps the next comparison cleaner.
-
-### Step 4: Move the app through UI
-This is the actual migration operation for ordinary non-root use.
-
-### Step 5: Verify with ADB
-Only after the move should the result be checked.
-Otherwise, the article becomes a UI note instead of a verification record.
+Without the final ADB check, the result would only be a Settings UI note, not a verification record.
 
 ---
 
-## Why the Mainline Workflow Is UI-Based but Verification Is ADB-Based
+## UI Changes State; ADB Proves the State
 
-This repository separates:
+The main workflow deliberately separates the operation from the proof.
 
-- **the action that changes state**, and
-- **the action that proves what changed**.
-
-### State-changing step
-For ordinary users, the actual migration step is the UI path:
+For ordinary non-root use, the state-changing step is the Settings UI:
 
 ```text
 Settings → Storage → Apps → Storage location
 ```
 
-### Proof step
-The proof step is ADB-based:
+The proof step is ADB:
 
 ```bash
 adb shell pm path <package>
@@ -139,29 +104,21 @@ adb shell df -h /storage/emulated
 adb shell df -h /mnt/expand/<UUID>
 ```
 
-This separation matters because UI alone can be misleading.
+This matters because the UI can show that an app was moved, while offline data may still grow under shared internal storage.
 
 ---
 
-## Why Windows / MTP Is Not Used as the Only Judge
+## Why Windows / MTP Is Only Partial Evidence
 
-Many users naturally check storage by plugging the device into a PC.
-That is useful, but it is not enough.
+Plugging the player into a PC is useful, but it is not enough by itself. Windows / MTP often shows the shared-storage namespace, not every lower-level Android volume.
 
-Why?
-
-Because Windows / MTP often mainly reflects the shared-storage namespace, not every lower-level expanded volume.
-
-So the method in this repository is:
-
-- treat Windows / MTP as **one observation source**,
-- but do not use it as the **only truth source**.
+In this repo, Windows / MTP is treated as one observation source. It is not used as the only source of truth.
 
 ---
 
-## Why Exploration Commands Are Kept but Not Promoted as Default Steps
+## Exploration Commands
 
-The following commands may help during research:
+During testing, the following commands were also used to understand Android storage behavior:
 
 ```bash
 adb shell sm set-force-adoptable true
@@ -170,67 +127,41 @@ adb reboot
 adb shell sm list-volumes all
 ```
 
-They are kept because they help reveal low-level storage structure.
+These commands are useful for exploring adoptable storage and private-volume behavior, but they are not the default reader workflow. They may involve storage reconstruction or formatting risk, and they are not required for the verified non-root UI-based method.
 
-They are **not** promoted as the default reader workflow because:
-
-1. they may involve storage reconstruction,
-2. they may imply formatting risk,
-3. they are not required for the verified non-root UI-based method.
-
-So the methodology here is:
-
-> Keep exploration commands as research evidence, but keep the mainline user workflow conservative.
+Their role in this repo is research history, not a recommended first step.
 
 ---
 
-## What Counts as a Strong Result
+## Strong Report Format
 
-A strong result in this repository usually includes all of the following:
-
-1. the device model,
-2. Android version,
-3. app name and version,
-4. whether UI migration exists,
-5. whether the package really moved,
-6. whether offline data followed,
-7. whether ADB verification was used,
-8. what Windows / MTP showed,
-9. a short factual summary.
+A useful compatibility report should include the device model, Android version, app name and version, whether UI migration exists, whether the package really moved, whether offline data followed, whether ADB verification was used, what Windows / MTP showed, and a short factual summary.
 
 Example:
 
 > App package moved through system UI. `pm path` and `volumeUuid` pointed to the external-side volume. Offline-song data still grew under shared internal storage. Windows MTP still mainly showed the internal shared-storage side.
 
-This is strong because it separates the layers instead of compressing them into one sentence.
+This style is useful because it keeps the layers separate instead of compressing everything into “worked” or “failed.”
 
 ---
 
-## What Counts as a Weak Result
+## Weak Report Format
 
-Weak results are usually things like:
+Reports such as “it worked,” “it did not work,” “I think it moved,” or screenshots without explanation are still useful as early clues, but they are not strong enough for compatibility conclusions.
 
-- “It worked”
-- “It did not work”
-- “I think it moved”
-- screenshots without explanation
-- Windows view only, without system-side verification
-- UI observation only, without package/data verification
-
-These are not useless, but they are not strong enough for compatibility conclusions.
+A Windows-only result is also incomplete. So is a UI-only result. Both need package and data checks before they can support a storage-behavior conclusion.
 
 ---
 
-## Practical Goal of the Method
+## Practical Goal
 
-The goal of this method is not to force Android into a preferred design.
-It is to answer three practical questions clearly:
+The goal is not to force Android into a preferred design. The goal is to answer three practical questions:
 
 1. What changed?
 2. What did not change?
-3. What can still be used as a practical workaround?
+3. What workaround is still usable?
 
-That is why the final output of this repository often becomes:
+For the Walkman + QQ Music case, the result is:
 
 ```text
 Package moved -> yes
@@ -240,17 +171,10 @@ Practical workaround -> yes
 
 ---
 
-## Final Method Summary
+## Summary
 
-This repository uses the following method:
-
-1. separate storage behavior into multiple layers,
-2. use UI for the ordinary migration step,
-3. use ADB for proof,
-4. treat Windows / MTP as partial evidence only,
-5. keep exploration commands as research history,
-6. prefer reproducible, comparable, factual reporting.
+The method used in this repo is simple: separate the storage layers, change one state through the normal UI path, then verify with ADB.
 
 In short:
 
-> **The method is not “change one setting and hope.” The method is “separate the layers, change one state, and verify what really moved.”**
+> Change one thing, then check what really moved.
