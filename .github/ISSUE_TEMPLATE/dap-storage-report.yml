@@ -1,5 +1,5 @@
 name: DAP storage behavior report
-description: Report Android 11+ DAP SD card behavior for an app or device
+description: Report Android 11+ DAP SD card behavior for one app or device
 title: "[Report] <device> / <app> / Android <version>"
 labels:
   - compatibility-report
@@ -7,9 +7,10 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for contributing a compatibility report.
+        Thanks for the report.
 
-        Please fill in the details below so the result can be compared across devices and apps.
+        Please include enough detail to compare your result with the existing Walkman test.
+        The main point is to separate app migration from offline-data behavior.
 
   - type: input
     id: device_model
@@ -51,7 +52,7 @@ body:
     id: app_version
     attributes:
       label: App version
-      description: Optional but helpful for comparison
+      description: Optional, but useful when app behavior changes between releases
       placeholder: 13.5.0
     validations:
       required: false
@@ -60,10 +61,23 @@ body:
     id: ui_move_available
     attributes:
       label: Is UI app migration available?
-      description: Can you manually move the app in system UI?
+      description: Can the app be moved from the system Settings UI?
       options:
         - Yes
         - No
+        - Not sure
+    validations:
+      required: true
+
+  - type: dropdown
+    id: package_moved
+    attributes:
+      label: Did the app package actually move?
+      description: Prefer ADB evidence such as pm path or volumeUuid. Choose Not tested if you only checked the UI.
+      options:
+        - Yes
+        - No
+        - Not tested
         - Not sure
     validations:
       required: true
@@ -96,12 +110,16 @@ body:
     id: adb_commands
     attributes:
       label: ADB commands and observations
-      description: Paste the commands you used and summarize the result
+      description: Paste the commands you used and the relevant output or summary
       placeholder: |
         adb shell pm path <package>
         adb shell dumpsys package <package> | findstr volumeUuid
         adb shell df -h /storage/emulated
         adb shell df -h /mnt/expand/<UUID>
+
+        Observation:
+        - pm path changed to external-side storage
+        - offline data still grew under /storage/emulated
     validations:
       required: false
 
@@ -109,11 +127,11 @@ body:
     id: reproduction_steps
     attributes:
       label: Reproduction steps
-      description: Describe the order you used so others can reproduce it
+      description: Write the order you used. Short steps are fine.
       placeholder: |
         1. Enable USB debugging
         2. Install app
-        3. Launch once and close it
+        3. Launch once, then close it
         4. Move app in Settings → Storage → Apps → Storage location
         5. Verify with ADB
     validations:
@@ -123,16 +141,25 @@ body:
     id: result_summary
     attributes:
       label: Result summary
-      description: Briefly describe what actually moved and what did not
+      description: State what moved and what did not move
       placeholder: App package moved, but offline song data remained in shared internal storage.
     validations:
       required: true
 
   - type: textarea
+    id: mtp_observation
+    attributes:
+      label: Windows / MTP observation
+      description: Optional. Note what Windows or MTP showed after the test.
+      placeholder: Windows MTP still showed only about 103GB.
+    validations:
+      required: false
+
+  - type: textarea
     id: additional_notes
     attributes:
       label: Additional notes
-      description: Add screenshots, MTP observations, region-specific behavior, or anything else useful
-      placeholder: Windows MTP still showed only about 103GB.
+      description: Add screenshots, region-specific behavior, or anything else useful
+      placeholder: China ROM / Global ROM difference, unusual app behavior, or screenshots.
     validations:
       required: false
