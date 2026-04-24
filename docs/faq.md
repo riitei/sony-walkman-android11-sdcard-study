@@ -1,6 +1,6 @@
 # FAQ
 
-This FAQ is written to answer the most common, searchable problems around **Android 11+ DAP SD card storage behavior**.
+This FAQ answers the common questions that came up while testing **Android 11+ DAP SD card storage behavior**.
 
 [Back to main README](../README.md) · [Traditional Chinese](README.zh-TW.md) · [Simplified Chinese](README.zh-CN.md) · [English article](README.en.md) · [Compatibility Matrix](compatibility.md)
 
@@ -8,29 +8,21 @@ This FAQ is written to answer the most common, searchable problems around **Andr
 
 ## 1. The SD card is recognized, but the app still uses internal storage. Why?
 
-Because these are not the same layer.
+Because SD card detection and app data storage are not the same layer.
 
-On Android 11+, at least three things can behave differently:
-
-- the **system** can see the SD card,
-- the **UI** can allow app migration,
-- but the **app's own offline data** may still write to shared internal storage.
-
-So “SD card recognized” does **not** automatically mean “offline songs now save to SD card.”
+On Android 11+, the system may see the SD card, the Settings UI may allow an app move, and the app may still write its offline songs or cache to shared internal storage. In this repo, those layers are checked separately.
 
 ---
 
 ## 2. The app moved successfully. Why did the data not follow?
 
-Because **app package location** and **app data location** are not guaranteed to be the same.
-
-A package can move to an external-side volume, while offline songs, cache, or downloads still remain in:
+The app package and the app's offline data are controlled separately. A package can move to an external-side volume, while downloads or cache still remain under:
 
 ```text
 /storage/emulated/0
 ```
 
-This is one of the main findings of this repository.
+That is the main behavior observed in the Sony Walkman + QQ Music case.
 
 ---
 
@@ -38,80 +30,58 @@ This is one of the main findings of this repository.
 
 Not necessarily.
 
-That is exactly the problem this repository studies.
+In the verified Walkman + QQ Music test:
 
-Verified Sony Walkman + QQ Music result:
+```text
+app package moved -> yes
+offline song data followed -> no
+```
 
-- app package moved: **yes**
-- offline song data moved with it: **no**
-
-So the correct answer is:
-
-> **App migration success does not guarantee offline-data migration success.**
+So app migration success should not be treated as proof that offline music data also moved.
 
 ---
 
 ## 4. Why does Windows / MTP still show only about 103GB instead of the full 1TB?
 
-Because Windows MTP usually exposes the **shared storage layer**, not every lower-level expanded volume.
+Windows / MTP usually shows the shared-storage layer, not every lower-level Android volume.
 
-In this repository's tested case:
-
-- the device may report total capacity around 1.13TB,
-- but Windows still shows only the internal shared-storage side.
-
-So:
-
-> Windows not showing 1TB does not mean the SD card is useless. It means the expanded volume is not exposed in the same way as a normal portable disk.
+In this test, the Walkman settings page could report a larger total capacity, while Windows still mainly showed the internal shared-storage side. That does not mean the SD card is useless. It means the expanded volume is not exposed to MTP like a normal portable drive.
 
 ---
 
 ## 5. What is `/storage/emulated/0`?
 
-It is the familiar **shared internal storage layer** used by many Android apps and shown by many file managers.
+It is the shared internal storage layer most users see in file managers. Many apps also show it as the visible download location.
 
-Apps often present this layer as the visible download destination.
-
-But it is not the same thing as every lower-level storage volume available in the system.
+It is important, but it is not the whole storage model of the device.
 
 ---
 
 ## 6. What is `/mnt/expand/<UUID>`?
 
-It is a lower-level **expanded / external volume path** seen by the system.
+It is a lower-level expanded or external volume path seen by Android. In some cases, Package Manager may place the app package there.
 
-In some cases, the package manager may place an app package there.
-
-However, that still does **not** guarantee that the app's offline songs or cache also move there.
+That still does not guarantee that offline songs or cache data will follow.
 
 ---
 
 ## 7. What does `disk:179,192` mean?
 
-It is a **StorageManager disk identifier** returned by:
+It is a StorageManager disk identifier returned by:
 
 ```bash
 adb shell sm list-disks
 ```
 
-It is **not** a mount path.
-It is **not** the internal storage volume itself.
-
-It is simply an identifier used by Android's storage management layer.
+It is not a mount path, and it is not the internal storage volume itself. It is only an Android storage-management identifier.
 
 ---
 
-## 8. Is root required for this study?
+## 8. Is root required?
 
-No.
+No. The verified workflow in this repo is non-root.
 
-The main workflow validated in this repository is **non-root**:
-
-1. enable USB debugging,
-2. inspect with ADB,
-3. install and initialize the app,
-4. manually move the app in system UI,
-5. verify package and data behavior with ADB.
+The normal path is: enable USB debugging, inspect with ADB, install and launch the app once, move it through the system UI, then verify package and data behavior with ADB.
 
 ---
 
@@ -124,110 +94,63 @@ adb reboot
 adb shell sm list-volumes all
 ```
 
-No, not as the default reader workflow.
+No. They are part of the research trail, not the default reader workflow.
 
-They belong to the **research trail** of the study.
-They helped clarify low-level storage behavior, but they are **not** treated in this repository as the default instruction set for ordinary readers.
-
-Why not?
-
-- they can involve storage reconstruction,
-- they can imply formatting risk,
-- they are not the final stable workflow validated in this repo.
+They helped reveal low-level storage behavior, but they may involve storage reconstruction or formatting risk. The stable main workflow in this repo is still UI app migration plus ADB verification.
 
 ---
 
 ## 10. Is the main workflow UI-based or command-based?
 
-For ordinary readers, the main workflow is:
+The migration step is UI-based. The verification step is ADB-based.
 
-- **UI-based app migration**
-- plus **ADB-based verification**
-
-That means:
-
-1. install the app,
-2. run it once,
-3. close it,
-4. move it through:
+In practice, install the app, run it once, close it, move it through:
 
 ```text
 Settings → Storage → Apps → Storage location
 ```
 
-5. verify what actually changed with ADB.
-
-So the correct answer is:
-
-> **The migration step is UI-based; the verification step is ADB-based.**
+Then use ADB to check what actually changed.
 
 ---
 
 ## 11. Why install the app first, then launch it once, then close it?
 
-Because without that sequence:
-
-- there may be no meaningful initialized package state,
-- no real app data behavior to inspect,
-- and no meaningful comparison point for later ADB checks.
-
-This repository treats that order as part of the valid method.
+That sequence gives the app a real initialized state before testing. Without it, package state and data behavior may be incomplete, and the later ADB comparison is less useful.
 
 ---
 
 ## 12. Why can QQ Music move, but offline songs still stay in internal storage?
 
-Because the app package and offline data are controlled by different layers.
+Because the system can move the app package, while the app itself may still choose to write offline songs into shared internal storage.
 
-The system may allow the **package** to move.
-The app may still choose to write **offline songs** into shared internal storage.
-
-This is not necessarily a contradiction. It is a separation of responsibilities.
+That is not a contradiction. It is a separation between package placement and app data behavior.
 
 ---
 
-## 13. Does the "Modify system settings" permission matter?
+## 13. Does the “Modify system settings” permission matter?
 
-QQ Music may expose a permission path like:
+QQ Music may expose a permission path such as:
 
 ```text
 App info → Advanced → Modify system settings
 ```
 
-At present, there is **no sufficient evidence** in this repository that this permission directly determines whether offline songs can move to external storage.
-
-So it is recorded as an observation item, not as a confirmed cause.
+For the storage behavior tested here, there is currently no sufficient evidence that this permission decides whether offline songs can move to external storage. It is recorded as an observation, not as a confirmed cause.
 
 ---
 
 ## 14. Can AI solve this problem?
 
-AI can help with:
+AI can help separate the layers, design the test flow, interpret ADB output, and write clearer notes. It cannot override Android storage rules or force every app to store offline data where the user wants.
 
-- separating the problem into layers,
-- designing a reproducible verification workflow,
-- interpreting ADB outputs,
-- distinguishing UI appearance from actual storage behavior,
-- writing clear documentation and compatibility records.
-
-But AI cannot magically override Android storage rules or app-specific implementation limits.
-
-So the honest answer is:
-
-> **AI can help you understand, test, document, and narrow the problem. It cannot guarantee that every app will obey the storage behavior you want.**
+For this problem, AI is useful as a testing and documentation aid, not as a replacement for device-side verification.
 
 ---
 
 ## 15. What is the practical working solution right now?
 
-In the verified Sony Walkman + QQ Music case, the practical solution is:
-
-- treat internal storage as the **system/app disk**,
-- treat the 1TB SD card as the **music-library disk**,
-- accept that download and storage may be separated,
-- and manually relocate music data when needed.
-
-In short:
+For the verified Sony Walkman + QQ Music case, the practical storage role is:
 
 ```text
 Download -> internal storage
@@ -235,20 +158,12 @@ Store -> SD card
 Play -> read from SD card
 ```
 
+In other words, treat internal storage as the system / app disk, and treat the 1TB SD card as the music-library disk. Manual relocation may still be needed.
+
 ---
 
 ## 16. Is this repository a universal answer for all DAP devices and all streaming apps?
 
-No.
+No. It is a verified Sony Walkman case, a repeatable method, and a place for later compatibility reports.
 
-It is currently:
-
-- a **verified Sony Walkman case**,
-- a **repeatable method**,
-- and a **research entry point** for future compatibility reports.
-
-For other devices and apps, see:
-
-- [Compatibility Matrix](compatibility.md)
-
-and treat unverified entries as open questions, not final conclusions.
+For other devices and apps, check the [Compatibility Matrix](compatibility.md). Unverified entries should be treated as open questions, not final conclusions.
