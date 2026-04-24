@@ -27,6 +27,7 @@ This matrix separates:
 - whether ADB verification was used
 - Windows / MTP behavior
 - firmware or region differences
+- app version, when available
 
 The main point is simple: an app can look movable in the UI while its offline data still does not move.
 
@@ -34,15 +35,15 @@ The main point is simple: an app can look movable in the UI while its offline da
 
 ## App / Device Matrix
 
-| Streaming App | Tested Device | Android Version | Firmware / Region | UI app migration available | Package moved | Offline data follows | ADB verified | Windows / MTP behavior | Notes |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| QQ Music | Sony Walkman | Android 11 | Not explicitly separated in current verified case | ✅ Yes | ✅ Yes | ❌ No | ✅ Yes | Windows / MTP still mainly showed internal shared storage (~103/104GB) | App package can move; offline song data still mainly writes to shared storage |
-| NetEase Cloud Music | ⏳ Community report needed |  |  |  |  |  |  |  |  |
-| Soda Music | ⏳ Community report needed |  |  |  |  |  |  |  |  |
-| Apple Music | ⏳ Community report needed |  |  |  |  |  |  |  |  |
-| Spotify | ⏳ Community report needed |  |  |  |  |  |  |  |  |
-| Tidal | ⏳ Community report needed |  |  |  |  |  |  |  |  |
-| KKBOX | ⏳ Community report needed |  |  |  |  |  |  |  |  |
+| Streaming App | App Version | Tested Device | Android Version | Firmware / Region | UI app migration available | Package moved | Offline data follows | ADB verified | Windows / MTP behavior | Notes |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| QQ Music | Not recorded in current verified case | Sony Walkman | Android 11 | Not explicitly separated in current verified case | ✅ Yes | ✅ Yes | ❌ No | ✅ Yes | Windows / MTP still mainly showed internal shared storage (~103/104GB) | App package can move; offline song data still mainly writes to shared storage |
+| NetEase Cloud Music | ⏳ Community report needed | ⏳ Community report needed |  |  |  |  |  |  |  |  |
+| Soda Music | ⏳ Community report needed | ⏳ Community report needed |  |  |  |  |  |  |  |  |
+| Apple Music | ⏳ Community report needed | ⏳ Community report needed |  |  |  |  |  |  |  |  |
+| Spotify | ⏳ Community report needed | ⏳ Community report needed |  |  |  |  |  |  |  |  |
+| Tidal | ⏳ Community report needed | ⏳ Community report needed |  |  |  |  |  |  |  |  |
+| KKBOX | ⏳ Community report needed | ⏳ Community report needed |  |  |  |  |  |  |  |  |
 
 ---
 
@@ -76,6 +77,8 @@ adb shell df -h /mnt/expand/<UUID>
 ```
 
 **Windows / MTP behavior** is useful, but incomplete. Many users first notice the problem because Windows still shows only the shared-storage side. That observation should be recorded, but it should not replace Android-side verification.
+
+**App version** matters because streaming apps can change storage behavior between releases. If the version is unknown, leave it as not recorded rather than guessing.
 
 ---
 
