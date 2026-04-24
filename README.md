@@ -1,44 +1,36 @@
 # Android 11+ DAP SD Card Storage Study
 
-Research on Android 11+ digital audio players (DAP) storage behavior, with **Sony Walkman + Android 11 + QQ Music** used as the primary verified case.
+This repository records a practical storage test on Android 11+ digital audio players (DAPs). The verified case is **Sony Walkman + Android 11 + QQ Music**.
 
-This repository focuses on a practical question:
+The problem I wanted to check was simple: after an Android DAP recognizes an external SD card, can that card really become useful storage for apps and offline music data?
 
-> On Android 11+ DAP devices, can an external SD card really become usable storage for apps and offline music data?
-
-The answer is more nuanced than it first appears:
-
-- an app package may be movable,
-- but its offline data may still remain in shared internal storage,
-- and UI-reported capacity does not always match actual app data behavior.
+In the Walkman test, the answer was mixed. The app package could be moved through the Android system UI, but offline songs did not necessarily follow the app package. Windows / MTP also continued to show the shared internal storage view, so the UI result alone was not enough to prove where the app data was actually written.
 
 ---
 
-## Who This Repository Is For
+## What This Repository Covers
 
-This repository is useful if you are facing problems such as:
+This repo is mainly for cases where the SD card is visible, but the app still appears to consume internal storage. It is also useful when an app can be moved, but downloaded songs, cache, or offline media remain under shared internal storage.
 
-- the SD card is recognized, but the app still consumes internal storage,
-- the app can be moved, but offline songs or cached media do not follow,
-- Windows / MTP still shows only the internal shared storage,
-- `/storage/emulated/0` and `/mnt/expand/<UUID>` appear to behave differently,
-- you want a **non-root**, reproducible workflow to verify what really moved and what did not.
+The notes focus on a **non-root** workflow: use the Android system UI to move the app, then use ADB to verify what changed. The goal is to separate three layers that are easy to mix up:
+
+- what Android storage reports,
+- what the Settings UI allows,
+- where the app actually writes offline data.
 
 ---
 
 ## Common Search Problems
 
-This repository is also written around search-oriented problem statements such as:
+These are the symptoms this repo tries to explain:
 
-- **Android 11 SD card recognized but app still uses internal storage**
-- **App moved but data did not follow**
-- **QQ Music SD card Android 11 DAP**
-- **Sony Walkman SD card app migration**
-- **Windows MTP only shows 103GB**
-- **`/storage/emulated/0` vs `/mnt/expand/<UUID>`**
-- **Android 11 offline music still stored in internal storage**
-
-These phrases describe the actual user-facing symptoms that this repository tries to explain.
+- Android 11 SD card recognized but app still uses internal storage
+- App moved but data did not follow
+- QQ Music SD card Android 11 DAP
+- Sony Walkman SD card app migration
+- Windows MTP only shows internal storage capacity
+- `/storage/emulated/0` vs `/mnt/expand/<UUID>`
+- Android 11 offline music still stored in internal storage
 
 ---
 
@@ -57,114 +49,84 @@ These phrases describe the actual user-facing symptoms that this repository trie
 
 ## Project Structure
 
-- `README.md` — repository entry point and high-level overview
-- `docs/README.zh-TW.md` — full Traditional Chinese article
-- `docs/README.zh-CN.md` — full Simplified Chinese article
-- `docs/README.en.md` — full English article
-- `docs/methodology.md` — verification method and layer-separation logic
-- `docs/faq.md` — English FAQ
-- `docs/faq.zh-TW.md` — Traditional Chinese FAQ
-- `docs/faq.zh-CN.md` — Simplified Chinese FAQ
-- `docs/compatibility.md` — compatibility matrix for devices and apps
-- `CONTRIBUTING.md` — contribution guide and reporting standards
-- `.github/ISSUE_TEMPLATE/` — structured report templates for storage-behavior issues
+`README.md` is the entry point. The longer articles are stored under `docs/`, with separate Traditional Chinese, Simplified Chinese, and English versions. Methodology, FAQ, compatibility notes, contribution rules, and issue templates are split out so device reports can stay comparable.
+
+Important files:
+
+- `docs/README.zh-TW.md` / `docs/README.zh-CN.md` / `docs/README.en.md`
+- `docs/methodology.md`
+- `docs/faq.md`, `docs/faq.zh-TW.md`, `docs/faq.zh-CN.md`
+- `docs/compatibility.md`
+- `CONTRIBUTING.md`
+- `.github/ISSUE_TEMPLATE/`
 
 ---
 
 ## Key Findings
 
-- Apps can be moved.
-- App data may **not** follow.
-- System storage layer is **not** the same as app data layer.
-- UI success does **not** automatically mean offline-data success.
-- The validated workflow is **UI-based app migration + ADB verification**, not root.
+In the verified Walkman case, moving the app package did not automatically prove that offline music data moved with it. The system storage layer, the Settings UI, and the app data layer need to be checked separately.
+
+The practical result is:
+
+- internal storage remains the safer system / app disk,
+- SD card works better as the music library disk,
+- ADB verification is needed before treating an app migration as successful.
 
 ---
 
-## Scope
+## Current Verified Scope
 
-This repository currently treats **Sony Walkman + Android 11 + QQ Music** as the verified case.
+The confirmed test case is **Sony Walkman + Android 11 + QQ Music**.
 
-Potentially relevant to other Android 11+ DAP devices, such as:
-
-- Sony
-- iBasso
-- HiBy
-- FiiO
-
-However, other devices and apps are currently treated as **community-reported / to be verified**, not as proven conclusions.
+Other Android 11+ DAP devices may show related behavior, including Sony, iBasso, HiBy, and FiiO models. They are not treated as proven conclusions in this repo unless there is a reproducible report with device model, firmware, app version, and verification method.
 
 ---
 
 ## Verified Workflow
 
-The repository currently emphasizes the following workflow:
+The current workflow is UI migration first, ADB verification second.
 
-1. Enable USB debugging
-2. Use ADB for inspection and verification
-3. Install, launch, and close the target app once
-4. Use system UI to manually move the app
-5. Verify package location and offline data behavior with ADB
+First enable USB debugging and use ADB to inspect the device. Then install the target app, launch it once, close it, and move it through the Android system UI if that option is available. After the move, use ADB again to check package location and offline data behavior.
 
-This is intended to separate three different layers clearly:
-
-- what the **system** sees,
-- what the **UI** allows,
-- what the **app data layer** actually does.
+This avoids treating a successful Settings UI operation as proof that downloaded music or cache data also moved.
 
 ---
 
 ## Case Summary: QQ Music on Sony Walkman
 
-Verified result:
+My test result was that QQ Music could be moved at the app-package level, but offline songs did **not necessarily** follow the app package.
 
-- the app package can be moved,
-- but offline songs do **not necessarily** move with it.
-
-This leads to the practical strategy used in this repo:
-
-- internal storage as the **system/app disk**,
-- SD card as the **music library disk**.
+That is why this repo treats the SD card as a media-library solution rather than a complete replacement for internal app storage.
 
 ---
 
 ## Research Position
 
-This repository is not written as a generic “how to move one app” note.
-It is written as a storage-behavior study for Android 11+ DAP devices.
+This is not a universal guide for every Android player or every streaming app. It is a storage-behavior record built from one verified Walkman case, then expanded only when later tests or community reports can be compared against the same method.
 
-The Sony Walkman case is used to build a repeatable method for answering questions such as:
+The main questions are:
 
 - What actually moved?
-- What only looked moved in UI?
+- What only looked moved in the UI?
 - What still writes to shared internal storage?
-- Which behaviors are device-specific, and which may be broader Android 11+ DAP behaviors?
+- Which behavior is device-specific, and which behavior may be common on Android 11+ DAPs?
 
 ---
 
 ## Contributing
 
-If you want to contribute a verified report, please read:
+Verified reports are welcome. Please include the device model, Android version, firmware / region, app name and version, whether UI app migration is available, whether offline data follows, and whether ADB verification was used.
+
+Before opening a report, read:
 
 - [CONTRIBUTING.md](CONTRIBUTING.md)
 - [Compatibility Matrix](docs/compatibility.md)
 - [Methodology](docs/methodology.md)
 
-The repository includes a structured issue template for reporting:
-
-- device model
-- Android version
-- firmware / region
-- app name and version
-- whether UI app migration is available
-- whether offline data follows
-- whether ADB verification was used
-
-This keeps reports reproducible and comparable.
+Reports with the same fields are easier to compare, especially when different devices show similar UI behavior but different app-data behavior.
 
 ---
 
 ## Notes
 
-This repository is not intended as a universal final answer for every Android DAP or every streaming service.
-It is a growing research record, starting from a verified Sony Walkman case and expanding through later testing and community feedback.
+This repo starts from a verified Sony Walkman case. Broader Android 11+ DAP conclusions should be added only after comparable tests or clearly labeled community reports.
